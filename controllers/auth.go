@@ -9,9 +9,9 @@ import (
 )
 
 func Register(c *gin.Context) {
+		var input models.User
 
-		// Validates input by binding JSON payload
-    var input models.User
+		// Validates request by binding JSON payload to user
     if err := c.ShouldBindJSON(&input); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
