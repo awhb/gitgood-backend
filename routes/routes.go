@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes() *gin.Engine {
+func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
 	api := r.Group("/api")
@@ -18,6 +18,11 @@ func SetupRoutes() *gin.Engine {
 			api.GET("/threads/:id", controllers.GetThread)
 			api.PUT("/threads/:id", controllers.UpdateThread)
 			api.DELETE("/threads/:id", controllers.DeleteThread)
+
+			api.POST("/comments", controllers.CreateComment)
+			api.GET("/threads/:thread_id/comments", controllers.GetComments)
+			api.PUT("/comments/:id", controllers.UpdateComment)
+			api.DELETE("/comments/:id", controllers.DeleteComment)
 	}
 
 	return r
