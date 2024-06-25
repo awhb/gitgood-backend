@@ -1,7 +1,6 @@
 package main
 
 import (
-    "gossip-forum-backend/controllers"
     "gossip-forum-backend/database"
     "gossip-forum-backend/routes"
 
@@ -14,7 +13,13 @@ func main() {
     r.Use(cors.Default())  // Allow CORS
 
     database.ConnectDatabase()
-    routes.SetupRouter(r)
 
+    v1 := r.Group("/api/v1")
+    {
+        routes.Comments(v1)
+        routes.Threads(v1)
+        routes.Users(v1)
+    }
+  
     r.Run() // listen and serve on 0.0.0.0:8080
 }
