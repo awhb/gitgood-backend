@@ -2,11 +2,17 @@ package main
 
 import (
     "gossip-forum-backend/database"
+    "gossip-forum-backend/initialisers"
     "gossip-forum-backend/routes"
+
 
     "github.com/gin-contrib/cors"
     "github.com/gin-gonic/gin"
 )
+
+func init() {
+    initialisers.LoadEnvVariables()
+}
 
 func main() {
     r := gin.Default()
