@@ -27,7 +27,7 @@ func ThreadsCreate(c *gin.Context) {
     }
 
     // Return created thread
-    c.JSON(200, gin.H{"thread": thread})
+    c.JSON(200, gin.H{"data": thread})
 }
 
 // Retrieves all threads from the database along with associated user information
@@ -36,7 +36,7 @@ func ThreadsIndex(c *gin.Context) {
 
     initialisers.DB.Preload("User").Find(&threads)
 
-    c.JSON(200, gin.H{"threads": threads})
+    c.JSON(200, gin.H{"data": threads})
 }
 
 // Retrieves a single thread from the database along with associated user information
@@ -51,7 +51,7 @@ func ThreadsShow(c *gin.Context) {
         return
     }
 
-    c.JSON(200, gin.H{"thread": thread})
+    c.JSON(200, gin.H{"data": thread})
 }
 
 func ThreadsUpdate(c *gin.Context) {
@@ -75,7 +75,7 @@ func ThreadsUpdate(c *gin.Context) {
         Content: body.Content,
     })
 
-    c.JSON(200, gin.H{"thread": thread})
+    c.JSON(200, gin.H{"data": thread})
 }
 
 func ThreadsDelete(c *gin.Context) {

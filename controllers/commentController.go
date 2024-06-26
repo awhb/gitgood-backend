@@ -31,7 +31,7 @@ func CommentsIndex(c *gin.Context) {
     
     initialisers.DB.Preload("User").Preload("Thread").Find(&comments, "thread_id = ?", c.Param("thread_id"))
 
-    c.JSON(200, gin.H{"comments": comments})
+    c.JSON(200, gin.H{"data": comments})
 }
 
 func CommentsUpdate(c *gin.Context) {
@@ -53,7 +53,7 @@ func CommentsUpdate(c *gin.Context) {
         Content: body.Content,
     })
     
-    c.JSON(200, gin.H{"comment": comment})
+    c.JSON(200, gin.H{"data": comment})
 }
 
 func CommentsDelete(c *gin.Context) {
