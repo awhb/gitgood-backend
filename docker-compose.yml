@@ -1,0 +1,12 @@
+services:
+  gitgood-backend:
+    build: .
+    env_file: .env
+    depends_on:
+      - db
+    links:
+      - db
+    networks:
+      - default
+    ports:
+      - "8080:8080"
