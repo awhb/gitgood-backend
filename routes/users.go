@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/awhb/gossip-backend/controllers"
+	"github.com/awhb/gitgood-backend/controllers"
 	"github.com/gin-gonic/gin"
 )
 

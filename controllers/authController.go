@@ -1,8 +1,8 @@
 package controllers
 
 import (
-    // "github.com/awhb/gossip-backend/models"
-    // "github.com/awhb/gossip-backend/utils"
+    // "github.com/awhb/gitgood-backend/models"
+    // "github.com/awhb/gitgood-backend/utils"
     "github.com/gin-gonic/gin"
 )
 

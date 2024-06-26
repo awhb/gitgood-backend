@@ -1,4 +1,4 @@
-module github.com/awhb/gossip-backend
+module github.com/awhb/gitgood-backend
 
 go 1.22.4
 
