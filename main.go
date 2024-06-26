@@ -9,8 +9,7 @@ import (
 )
 
 func init() {
-	// disabled for release
-    // initialisers.LoadEnvVariables()
+    initialisers.LoadEnvVariables()
     initialisers.ConnectToDB()
 }
 
