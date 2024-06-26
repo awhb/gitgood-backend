@@ -1,16 +1,16 @@
 package routes
 
 import (
-	"gossip-backend/controllers"
+	"github.com/awhb/gossip-backend/controllers"
 	"github.com/gin-gonic/gin"
 )
 
 func Comments(route *gin.RouterGroup) {
-		comments := route.Group("/comments")
-		{
-				comments.POST("/comments", controllers.CreateComment)
-				comments.GET("/threads/:thread_id/comments", controllers.GetComments)
-				comments.PUT("/comments/:id", controllers.UpdateComment)
-				comments.DELETE("/comments/:id", controllers.DeleteComment)
-		}
+	comments := route.Group("/comments")
+	{
+		comments.POST("/", controllers.CommentsCreate)
+		comments.GET("/:thread_id", controllers.CommentsIndex)
+		comments.PUT("/:id", controllers.CommentsUpdate)
+		comments.DELETE("/:id", controllers.CommentsDelete)
+	}
 }

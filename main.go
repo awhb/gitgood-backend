@@ -23,12 +23,6 @@ func main() {
         routes.Threads(v1)
         routes.Users(v1)
     }
-
-    r.GET("/", func(c *gin.Context) {
-        c.JSON(http.StatusOK, gin.H{
-            "data": "Hello, World!",
-        })
-    })
   
     r.Run() // listen and serve on 0.0.0.0:8080
 }

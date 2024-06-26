@@ -6,10 +6,10 @@ import (
 )
 
 func init() {
-		initialisers.LoadEnvVariables()
-		initialisers.ConnectToDB()
+	initialisers.LoadEnvVariables()
+	initialisers.ConnectToDB()
 }
 
 func main() {
-		initialisers.DB.AutoMigrate(&models.Thread{})
+	initialisers.DB.AutoMigrate(&models.Thread{})
 }

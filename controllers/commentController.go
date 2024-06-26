@@ -1,57 +1,67 @@
 package controllers
 
 import (
-    "net/http"
-    "gossip-backend/models"
+    "github.com/awhb/gossip-backend/initialisers"
+    "github.com/awhb/gossip-backend/models"
     "github.com/gin-gonic/gin"
 )
 
-func CreateComment(c *gin.Context) {
-    var input models.Comment
-    if err := c.ShouldBindJSON(&input); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+func CommentsCreate(c *gin.Context) {
+    // Get data off request body
+    var body struct {
+        Content string
+        UserID uint
+        ThreadID uint
+    }
+    c.Bind(&body)
+
+    // Create a comment
+    comment := models.Comment{Content: body.Content, UserID: body.UserID, ThreadID: body.ThreadID}
+    
+    result := initialisers.DB.Create(&comment)
+
+    if result.Error != nil {
+        c.Status(400)
         return
     }
-
-    comment := models.Comment{Content: input.Content, ThreadID: input.ThreadID, UserID: input.UserID}
-    database.DB.Create(&comment)
-
-    c.JSON(http.StatusOK, gin.H{"data": comment})
 }
 
-func GetComments(c *gin.Context) {
+func CommentsIndex(c *gin.Context) {
     var comments []models.Comment
-    database.DB.Preload("User").Where("thread_id = ?", c.Param("thread_id")).Find(&comments)
+    
+    initialisers.DB.Preload("User").Preload("Thread").Find(&comments, "thread_id = ?", c.Param("thread_id"))
 
-    c.JSON(http.StatusOK, gin.H{"data": comments})
+    c.JSON(200, gin.H{"comments": comments})
 }
 
-func UpdateComment(c *gin.Context) {
+func CommentsUpdate(c *gin.Context) {
+    // Get the id off the url
+    id := c.Param("id")
+
+    // Get data off request body
+    var body struct {
+        Content string
+    }
+    c.Bind(&body)
+
+    // Find the comment
     var comment models.Comment
-    if err := database.DB.Where("id = ?", c.Param("id")).First(&comment).Error; err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Comment not found"})
-        return
-    }
+    initialisers.DB.First(&comment, id)
 
-    var input models.Comment
-    if err := c.ShouldBindJSON(&input); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
-
-    database.DB.Model(&comment).Updates(input)
-
-    c.JSON(http.StatusOK, gin.H{"data": comment})
+    // Update the comment
+    initialisers.DB.Model(&comment).Updates(models.Comment{
+        Content: body.Content,
+    })
+    
+    c.JSON(200, gin.H{"comment": comment})
 }
 
-func DeleteComment(c *gin.Context) {
-    var comment models.Comment
-    if err := database.DB.Where("id = ?", c.Param("id")).First(&comment).Error; err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Comment not found"})
-        return
-    }
+func CommentsDelete(c *gin.Context) {
+    // Get the id off the url
+    id := c.Param("id")
 
-    database.DB.Delete(&comment)
+    // Delete the comment
+    initialisers.DB.Delete(&models.Comment{}, id)
 
-    c.JSON(http.StatusOK, gin.H{"data": true})
+    c.Status(200)
 }

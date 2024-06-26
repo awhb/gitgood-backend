@@ -1,73 +1,89 @@
 package controllers
 
 import (
-    "net/http"
-    "gossip-backend/models"
+    "github.com/awhb/gossip-backend/initialisers"
+    "github.com/awhb/gossip-backend/models"
     "github.com/gin-gonic/gin"
 )
 
-func CreateThread(c *gin.Context) {
-    var input models.Thread
+func ThreadsCreate(c *gin.Context) {
+    // Get data off request body
+    var body struct {
+        Title string
+        Content string
+        UserID uint
+        
+    }
+    c.Bind(&body)
 
-		// Validates request by binding JSON payload to thread
-    if err := c.ShouldBindJSON(&input); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+    // Create a thread
+    thread := models.Thread{Title: body.Title, Content: body.Content, UserID: body.UserID}
+    
+    result := initialisers.DB.Create(&thread)
+
+    if result.Error != nil {
+        c.Status(400)
         return
     }
 
-    thread := models.Thread{Title: input.Title, Content: input.Content, UserID: input.UserID}
-    database.DB.Create(&thread)
-
-    c.JSON(http.StatusOK, gin.H{"data": thread})
+    // Return created thread
+    c.JSON(200, gin.H{"thread": thread})
 }
 
 // Retrieves all threads from the database along with associated user information
-func GetThreads(c *gin.Context) {
+func ThreadsIndex(c *gin.Context) {
     var threads []models.Thread
 
-    database.DB.Preload("User").Find(&threads)
+    initialisers.DB.Preload("User").Find(&threads)
 
-    c.JSON(http.StatusOK, gin.H{"data": threads})
+    c.JSON(200, gin.H{"threads": threads})
 }
 
-// Retrieves a single thread from the database along with associated user information, 
-// throws an error if thread is not found
-func GetThread(c *gin.Context) {
+// Retrieves a single thread from the database along with associated user information
+func ThreadsShow(c *gin.Context) {
     var thread models.Thread
-    if err := database.DB.Preload("User").Where("id = ?", c.Param("id")).First(&thread).Error; err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Thread not found"})
+    id := c.Param("id")
+
+    initialisers.DB.Preload("User").First(&thread, id)
+
+    if thread.ID == 0 {
+        c.Status(404)
         return
     }
 
-    c.JSON(http.StatusOK, gin.H{"data": thread})
+    c.JSON(200, gin.H{"thread": thread})
 }
 
-func UpdateThread(c *gin.Context) {
+func ThreadsUpdate(c *gin.Context) {
+    // Get the id off the url
+    id := c.Param("id")
+
+    // Get data off request body
+    var body struct {
+        Title string
+        Content string
+    }
+    c.Bind(&body)
+
+    // Find thread 
     var thread models.Thread
-    if err := database.DB.Where("id = ?", c.Param("id")).First(&thread).Error; err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Thread not found"})
-        return
-    }
+    initialisers.DB.First(&thread, id)
 
-    var input models.Thread
-    if err := c.ShouldBindJSON(&input); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+    // Update thread
+    initialisers.DB.Model(&thread).Updates(models.Thread{
+        Title: body.Title,
+        Content: body.Content,
+    })
 
-    database.DB.Model(&thread).Updates(input)
-
-    c.JSON(http.StatusOK, gin.H{"data": thread})
+    c.JSON(200, gin.H{"thread": thread})
 }
 
-func DeleteThread(c *gin.Context) {
-	var thread models.Thread
-	if err := database.DB.Where("id = ?", c.Param("id")).First(&thread).Error; err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Thread not found"})
-			return
-	}
+func ThreadsDelete(c *gin.Context) {
+    // Get the id off the url
+    id := c.Param("id")
 
-	database.DB.Delete(&thread)
+    // Delete the thread
+    initialisers.DB.Delete(&models.Thread{}, id)
 
-	c.JSON(http.StatusOK, gin.H{"data": true})
+    c.Status(200)
 }
