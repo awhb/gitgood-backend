@@ -22,4 +22,4 @@ RUN go build
 EXPOSE 8080
 
 # Run the app
-ENTRYPOINT ["./main"]
+ENTRYPOINT ["./gitgood-backend"]
