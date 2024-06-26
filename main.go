@@ -14,6 +14,8 @@ func init() {
 }
 
 func main() {
+	gin.SetMode(gin.ReleaseMode)
+
     r := gin.Default()
     r.Use(cors.Default())  // Allow CORS
 
