@@ -1,4 +1,4 @@
-module gossip-backend
+module github.com/awhb/gossip-backend
 
 go 1.22.4
 
