@@ -2,8 +2,7 @@ package controllers
 
 import (
     "net/http"
-    "gossip-forum-backend/database"
-    "gossip-forum-backend/models"
+    "gossip-backend/models"
     "github.com/gin-gonic/gin"
 )
 
