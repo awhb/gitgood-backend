@@ -1,4 +1,4 @@
-module gossip-forum-backend
+module gossip-backend
 
 go 1.22.4
 
