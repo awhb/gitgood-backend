@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"gossip-forum-backend/controllers"
+	"gossip-backend/controllers"
 	"github.com/gin-gonic/gin"
 )
 

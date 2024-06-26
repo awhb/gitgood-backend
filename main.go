@@ -1,8 +1,8 @@
 package main
 
 import (
-    "gossip-forum-backend/initialisers"
-    "gossip-forum-backend/routes"
+    "github.com/awhb/gossip-backend/initialisers"
+    "github.com/awhb/gossip-backend/routes"
 
     "github.com/gin-contrib/cors"
     "github.com/gin-gonic/gin"
