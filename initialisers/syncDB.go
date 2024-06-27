@@ -6,6 +6,6 @@ import (
 
 func SyncDB() {
 	DB.AutoMigrate(&models.User{})
-	// DB.AutoMigrate(&models.Thread{})
-	// DB.AutoMigrate(&models.Comment{})
+	DB.AutoMigrate(&models.Thread{})
+	DB.AutoMigrate(&models.Comment{})
 }
