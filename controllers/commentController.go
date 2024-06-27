@@ -1,9 +1,11 @@
 package controllers
 
 import (
-    "github.com/awhb/gitgood-backend/initialisers"
-    "github.com/awhb/gitgood-backend/models"
-    "github.com/gin-gonic/gin"
+	"net/http"
+
+	"github.com/awhb/gitgood-backend/initialisers"
+	"github.com/awhb/gitgood-backend/models"
+	"github.com/gin-gonic/gin"
 )
 
 func CommentsCreate(c *gin.Context) {
@@ -21,7 +23,7 @@ func CommentsCreate(c *gin.Context) {
     result := initialisers.DB.Create(&comment)
 
     if result.Error != nil {
-        c.Status(400)
+        c.Status(http.StatusForbidden)
         return
     }
 }
@@ -31,7 +33,7 @@ func CommentsIndex(c *gin.Context) {
     
     initialisers.DB.Preload("User").Preload("Thread").Find(&comments, "thread_id = ?", c.Param("thread_id"))
 
-    c.JSON(200, gin.H{"data": comments})
+    c.JSON(http.StatusOK, gin.H{"data": comments})
 }
 
 func CommentsUpdate(c *gin.Context) {
@@ -53,7 +55,7 @@ func CommentsUpdate(c *gin.Context) {
         Content: body.Content,
     })
     
-    c.JSON(200, gin.H{"data": comment})
+    c.JSON(http.StatusOK, gin.H{"data": comment})
 }
 
 func CommentsDelete(c *gin.Context) {
@@ -63,5 +65,5 @@ func CommentsDelete(c *gin.Context) {
     // Delete the comment
     initialisers.DB.Delete(&models.Comment{}, id)
 
-    c.Status(200)
+    c.Status(http.StatusOK)
 }
