@@ -6,9 +6,9 @@ import (
 
 type Comment struct {
     gorm.Model
-    Content  string
-    ThreadID uint
-    Thread   Thread
+    Content  string `gorm:"type:text;not null"`
     UserID   uint
     User     User
+    ThreadID uint
+    Thread   Thread
 }
