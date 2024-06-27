@@ -4,8 +4,8 @@ import (
 	"github.com/awhb/gitgood-backend/models"
 )
 
-func SyncDatabase() {
+func SyncDB() {
 	DB.AutoMigrate(&models.User{})
-	DB.AutoMigrate(&models.Thread{})
-	DB.AutoMigrate(&models.Comment{})
+	// DB.AutoMigrate(&models.Thread{})
+	// DB.AutoMigrate(&models.Comment{})
 }
