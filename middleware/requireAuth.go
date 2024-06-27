@@ -13,7 +13,7 @@ import (
 	"github.com/awhb/gitgood-backend/models"
 )
 
-func requireAuth(c *gin.Context) {
+func RequireAuth(c *gin.Context) {
 	// Get the cookie off request
 	tokenString, err := c.Cookie("Authorisation")
 
