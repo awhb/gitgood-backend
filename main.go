@@ -12,6 +12,7 @@ func init() {
 	// disabled for release
     // initialisers.LoadEnvVariables()
     initialisers.ConnectToDB()
+	initialisers.SyncDB()
 }
 
 func main() {
