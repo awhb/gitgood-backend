@@ -2,7 +2,7 @@ package main
 
 import (
     "github.com/awhb/gitgood-backend/initialisers"
-    "github.com/awhb/gitgood-backend/routes"
+	"github.com/awhb/gitgood-backend/routes"
 
     "github.com/gin-contrib/cors"
     "github.com/gin-gonic/gin"
