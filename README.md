@@ -6,22 +6,34 @@ Backend web service for Gossip Forum, a web forum application.
 ```
 go-backend/
 ├── controllers/
-│   ├── auth.go
-│   ├── comment.go
-│   ├── thread.go
-├── database/
-│   ├── setup.go
+│   ├── commentController.go
+│   ├── threadController.go
+│   ├── usersController.go
+├── initialisers/
+│   ├── connectToDB.go
+│   ├── loadEnvVariables.go
+│   ├── syncDB.go
+├── middleware/
+│   ├── requireAuth.go
 ├── models/
-│   ├── comment.go
-│   ├── thread.go
-│   ├── tag.go
-│   ├── user.go
+│   ├── commentModel.go
+│   ├── threadModel.go
+│   ├── tagModel.go
+│   ├── userModel.go
 ├── routes/
-│   ├── routes.go
+│   ├── comments.go
+│   ├── threads.go
+│   ├── users.go
 ├── utils/
 │   ├── hash.go
+├── .env.example
+├── .gitignore
+├── docker-compose.yml
+├── Dockerfile
 ├── go.mod
 ├── go.sum
 ├── main.go
+├── Makefile
 ├── README.md
 ```
+
