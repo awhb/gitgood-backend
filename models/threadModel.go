@@ -12,4 +12,5 @@ type Thread struct {
     User    User
 	Comments []Comment
     Tags    []Tag `gorm:"many2many:thread_tags;"`
+	Upvotes int `gorm:"default:0"`
 }

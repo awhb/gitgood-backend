@@ -16,7 +16,7 @@ import (
 func Signup(c *gin.Context) {
 	// Get data off request body
 	var body struct {
-		Email string
+		Username string
 		Password string
 	}
 
@@ -38,7 +38,7 @@ func Signup(c *gin.Context) {
 	}
 
 	// Create user
-	user := models.User{Email: body.Email, Password: string(hash)}
+	user := models.User{Username: body.Username, Password: string(hash)}
 	result := initialisers.DB.Create(&user)
 
 	if result.Error != nil {
@@ -57,7 +57,7 @@ func Signup(c *gin.Context) {
 func Login(c *gin.Context) {
 	// Get data off request body
 	var body struct {
-		Email string
+		Username string
 		Password string
 	}
 
@@ -70,7 +70,7 @@ func Login(c *gin.Context) {
 
 	// Check if user exists
 	var user models.User
-	initialisers.DB.First(&user, "email = ?", body.Email)
+	initialisers.DB.First(&user, "username = ?", body.Username)
 
 	if user.ID == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -84,7 +84,7 @@ func Login(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid email or password",
+			"error": "Invalid username or password",
 		})
 		return
 	}
@@ -119,7 +119,7 @@ func Validate(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "You are logged in!",
-		"user":    user,
+		"data":    user,
 	})
 }
 
