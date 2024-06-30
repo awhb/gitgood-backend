@@ -11,25 +11,28 @@ import (
 func ThreadsCreate(c *gin.Context) {
     // Get data off request body
     var body struct {
-		Title string
-		Content string
-		UserID uint
+		title string
+		content string
+		userId uint
 		tags []string
     }
     c.Bind(&body)
 
     // Create a thread (and tags if they don't already exist)
-	thread := models.Thread{Title: body.Title, Content: body.Content, UserID: body.UserID}
-
-	for _, tag := range body.tags {
-		var t models.Tag
-		initialisers.DB.Where("name = ?", tag).FirstOrCreate(&t, models.Tag{Name: tag})
-		thread.Tags = append(thread.Tags, t)
+	thread := models.Thread{
+		Title:   body.title,
+		Content: body.content,
+		UserID:  body.userId,
 	}
 
 	result := initialisers.DB.Create(&thread)
 
-	// add association between thread 
+	for _, tag := range body.tags {
+		var t models.Tag
+		initialisers.DB.Where("Name = ?", tag).FirstOrCreate(&t, models.Tag{Name: tag})
+		thread.Tags = append(thread.Tags, t)
+		initialisers.DB.Model(&thread).Association("Tags").Append(t)
+	}
 
 	// Check for errors
     if result.Error != nil {
@@ -37,8 +40,10 @@ func ThreadsCreate(c *gin.Context) {
         return
     }
 
+	threadResponse := models.MapThreadToResponse(thread)
+
     // Return created thread
-    c.JSON(http.StatusOK, gin.H{"data": thread})
+    c.JSON(http.StatusOK, gin.H{"data": threadResponse})
 }
 
 // Retrieves all threads from the database along with associated user information
@@ -47,7 +52,9 @@ func ThreadsIndex(c *gin.Context) {
 
     initialisers.DB.Preload("User").Preload("Tags").Find(&threads)
 
-    c.JSON(http.StatusOK, gin.H{"data": threads})
+	threadResponse := models.MapThreadsToResponse(threads)
+
+    c.JSON(http.StatusOK, gin.H{"data": threadResponse})
 }
 
 // Retrieves a single thread from the database along with associated user information
@@ -62,7 +69,16 @@ func ThreadsShow(c *gin.Context) {
         return
     }
 
-    c.JSON(http.StatusOK, gin.H{"data": thread})
+	// load and return comments
+	var comments []models.Comment
+		
+	initialisers.DB.Preload("User").Preload("Thread").Find(&comments, "thread_id = ?", c.Param("id"))
+
+	threadResponse := models.MapThreadToResponse(thread)
+	commentsResponse := models.MapCommentsToResponse(comments)
+
+
+    c.JSON(http.StatusOK, gin.H{"thread": threadResponse, "comments": commentsResponse})
 }
 
 func ThreadsUpdate(c *gin.Context) {
@@ -71,8 +87,8 @@ func ThreadsUpdate(c *gin.Context) {
 
     // Get data off request body
     var body struct {
-        Title string
-        Content string
+        title string
+        content string
     }
     c.Bind(&body)
 
@@ -82,11 +98,13 @@ func ThreadsUpdate(c *gin.Context) {
 
     // Update thread
     initialisers.DB.Model(&thread).Updates(models.Thread{
-        Title: body.Title,
-        Content: body.Content,
+        Title: body.title,
+        Content: body.content,
     })
 
-    c.JSON(http.StatusOK, gin.H{"data": thread})
+	threadResponse := models.MapThreadToResponse(thread)
+
+    c.JSON(http.StatusOK, gin.H{"data": threadResponse})
 }
 
 func ThreadsDelete(c *gin.Context) {
@@ -96,5 +114,6 @@ func ThreadsDelete(c *gin.Context) {
     // Delete the thread
     initialisers.DB.Delete(&models.Thread{}, id)
 
-    c.JSON(http.StatusOK, gin.H{"data": "thread deleted"})
+    c.JSON(http.StatusOK, gin.H{"message": "thread deleted"})
 }
+

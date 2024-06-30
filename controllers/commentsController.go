@@ -28,14 +28,6 @@ func CommentsCreate(c *gin.Context) {
     }
 }
 
-func CommentsIndex(c *gin.Context) {
-    var comments []models.Comment
-    
-    initialisers.DB.Preload("User").Preload("Thread").Find(&comments, "thread_id = ?", c.Param("thread_id"))
-
-    c.JSON(http.StatusOK, gin.H{"data": comments})
-}
-
 func CommentsUpdate(c *gin.Context) {
     // Get the id off the url
     id := c.Param("id")
@@ -54,8 +46,10 @@ func CommentsUpdate(c *gin.Context) {
     initialisers.DB.Model(&comment).Updates(models.Comment{
         Content: body.Content,
     })
-    
-    c.JSON(http.StatusOK, gin.H{"data": comment})
+
+	commentResponse := models.MapCommenttoResponse(comment)
+
+    c.JSON(http.StatusOK, gin.H{"data": commentResponse})
 }
 
 func CommentsDelete(c *gin.Context) {

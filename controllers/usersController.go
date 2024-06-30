@@ -13,7 +13,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Signup(c *gin.Context) {
+func Register(c *gin.Context) {
 	// Get data off request body
 	var body struct {
 		Username string
@@ -107,19 +107,22 @@ func Login(c *gin.Context) {
 
 	// Success
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("Authorisation", tokenString, 3600*24*30, "", "", os.Getenv("GIN_MODE") == "release", true)
+	c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
 
 	c.JSON(http.StatusOK, gin.H{
 		"token": tokenString,
+		"user":  models.MapUserToResponse(user),
 	})
 }
 
 func Validate(c *gin.Context) {
 	user, _ := c.Get("user")
 
+	userResponse := models.MapUserToResponse(user.(models.User))
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "You are logged in!",
-		"data":    user,
+		"data":    userResponse,
 	})
 }
 
