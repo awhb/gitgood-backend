@@ -10,23 +10,32 @@ import (
 
 func init() {
 	// Disable in production
-    // initialisers.LoadEnvVariables()
+    initialisers.LoadEnvVariables()
+	
     initialisers.ConnectToDB()
 	initialisers.SyncDB()
 }
 
 func main() {
-	gin.SetMode(gin.ReleaseMode)
+	// gin.SetMode(gin.ReleaseMode)
 
     r := gin.Default()
-    r.Use(cors.Default())  // Allow CORS
 
-    v1 := r.Group("/api/v1")
+    r.Use(cors.New(cors.Config{
+        AllowOrigins:     []string{"http://localhost:5173"}, // Update with your frontend URL
+        AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+        AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+        ExposeHeaders:    []string{"Content-Length"},
+        AllowCredentials: true,
+    }))
+
+    api := r.Group("")
     {
-        routes.Comments(v1)
-        routes.Threads(v1)
-        routes.Users(v1)
+        routes.Comments(api)
+        routes.Threads(api)
+        routes.Users(api)
     }
   
     r.Run() // listen and serve on 0.0.0.0:8080
 }
+
