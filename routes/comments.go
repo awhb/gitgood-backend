@@ -7,11 +7,10 @@ import (
 )
 
 func Comments(route *gin.RouterGroup) {
-	comments := route.Group("")
+	comments := route.Group("/comments")
 	{
-		comments.POST("/comments/", middleware.RequireAuth, controllers.CommentsCreate)
-		comments.GET("/threads/:thread_id/comments", controllers.CommentsIndex)
-		comments.PUT("/comments/:id", controllers.CommentsUpdate)
-		comments.DELETE("/comments/:id", controllers.CommentsDelete)
+		comments.POST("", middleware.RequireAuth, controllers.CommentsCreate)
+		comments.PUT("/:id", controllers.CommentsUpdate)
+		comments.DELETE("/:id", controllers.CommentsDelete)
 	}
 }
