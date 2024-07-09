@@ -1,8 +1,0 @@
-services:
-  web:
-    build: .
-    env_file: .env
-    networks:
-      - default
-    ports:
-      - "8080:8080"
