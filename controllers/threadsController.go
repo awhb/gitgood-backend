@@ -112,5 +112,5 @@ func ThreadsDelete(c *gin.Context) {
     // Delete the thread
     initialisers.DB.Delete(&models.Thread{}, id)
 
-    c.JSON(http.StatusOK, gin.H{"message": "thread deleted"})
+    c.JSON(http.StatusOK, gin.H{"message": "Thread deleted successfully!"})
 }
