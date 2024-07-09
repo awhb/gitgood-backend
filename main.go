@@ -10,14 +10,14 @@ import (
 
 func init() {
 	// Disable in production
-    // initialisers.LoadEnvVariables()
+    initialisers.LoadEnvVariables()
 	
     initialisers.ConnectToDB()
 	initialisers.SyncDB()
 }
 
 func main() {
-	gin.SetMode(gin.ReleaseMode)
+	// gin.SetMode(gin.ReleaseMode)
 
     r := gin.Default()
 
