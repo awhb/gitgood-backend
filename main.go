@@ -10,14 +10,14 @@ import (
 
 func init() {
 	// Disable in production
-    // initialisers.LoadEnvVariables()
+    initialisers.LoadEnvVariables()
 	
     initialisers.ConnectToDB()
 	initialisers.SyncDB()
 }
 
 func main() {
-	gin.SetMode(gin.ReleaseMode)
+	// gin.SetMode(gin.ReleaseMode)
 
     r := gin.Default()
 
@@ -36,6 +36,6 @@ func main() {
         routes.Users(api)
     }
   
-    r.Run() // listen and serve on 0.0.0.0:8080
+    r.Run(":8080") // listen and serve on 0.0.0.0:8080
 }
 
