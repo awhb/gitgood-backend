@@ -85,7 +85,8 @@ func ThreadsUpdate(c *gin.Context) {
     // Get data off request body
     var body struct {
         Title string
-        Content string 
+        Content string
+		Tags []string
     }
 
     c.ShouldBindJSON(&body)
@@ -98,6 +99,7 @@ func ThreadsUpdate(c *gin.Context) {
     initialisers.DB.Model(&thread).Updates(map[string]interface{}{
         "title": body.Title,
         "content": body.Content,
+		"tags": body.Tags,
     })
 
     c.JSON(http.StatusOK, gin.H{"thread": thread})
