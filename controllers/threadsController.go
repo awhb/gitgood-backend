@@ -9,30 +9,34 @@ import (
 )
 
 func ThreadsCreate(c *gin.Context) {
+	// Get the authenticated user
+	user, exists := c.Get("user")
+    if !exists {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+        return
+    }
+    authUser := user.(models.User)
+
     // Get data off request body
     var body struct {
-		title string
-		content string
-		userId uint
-		tags []string
+        Title   string   `json:"title"`
+        Content string   `json:"content"`
+        Tags    []string `json:"tags"`
     }
-    c.Bind(&body)
+    if err := c.BindJSON(&body); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+        return
+    }
 
-    // Create a thread (and tags if they don't already exist)
-	thread := models.Thread{
-		Title:   body.title,
-		Content: body.content,
-		UserID:  body.userId,
-	}
+    // Create a thread
+    thread := models.Thread{
+        Title:   body.Title,
+        Content: body.Content,
+        UserID:  authUser.ID, // Use the authenticated user's ID
+		Tags:    body.Tags,
+    }
 
-	result := initialisers.DB.Create(&thread)
-
-	for _, tag := range body.tags {
-		var t models.Tag
-		initialisers.DB.Where("Name = ?", tag).FirstOrCreate(&t, models.Tag{Name: tag})
-		thread.Tags = append(thread.Tags, t)
-		initialisers.DB.Model(&thread).Association("Tags").Append(t)
-	}
+	result := initialisers.DB.Preload("User").Preload("Comments.User").Create(&thread)
 
 	// Check for errors
     if result.Error != nil {
@@ -40,21 +44,17 @@ func ThreadsCreate(c *gin.Context) {
         return
     }
 
-	threadResponse := models.MapThreadToResponse(thread)
-
     // Return created thread
-    c.JSON(http.StatusOK, gin.H{"data": threadResponse})
+    c.JSON(http.StatusOK, gin.H{"thread": thread})
 }
 
-// Retrieves all threads from the database along with associated user information
+// Retrieves all threads from the database
 func ThreadsIndex(c *gin.Context) {
     var threads []models.Thread
 
-    initialisers.DB.Preload("User").Preload("Tags").Find(&threads)
+    initialisers.DB.Preload("User").Preload("Comments").Find(&threads)
 
-	threadResponse := models.MapThreadsToResponse(threads)
-
-    c.JSON(http.StatusOK, gin.H{"data": threadResponse})
+    c.JSON(http.StatusOK, gin.H{"threads": threads})
 }
 
 // Retrieves a single thread from the database along with associated user information
@@ -62,23 +62,20 @@ func ThreadsShow(c *gin.Context) {
     var thread models.Thread
     id := c.Param("id")
 
-    initialisers.DB.Preload("User").Preload("Comments.User").Preload("Tags").First(&thread, id)
+	// find thread
+    initialisers.DB.Preload("User").Preload("Comments.User").First(&thread, id)
 
     if thread.ID == 0 {
-        c.Status(http.StatusNotFound)
+        c.JSON(http.StatusNotFound, gin.H{"error": "Thread not found"})
         return
     }
 
-	// load and return comments
+	// load and return comments with thread
 	var comments []models.Comment
 		
 	initialisers.DB.Preload("User").Preload("Thread").Find(&comments, "thread_id = ?", c.Param("id"))
 
-	threadResponse := models.MapThreadToResponse(thread)
-	commentsResponse := models.MapCommentsToResponse(comments)
-
-
-    c.JSON(http.StatusOK, gin.H{"thread": threadResponse, "comments": commentsResponse})
+    c.JSON(http.StatusOK, gin.H{"thread": thread, "comments": comments})
 }
 
 func ThreadsUpdate(c *gin.Context) {
@@ -87,24 +84,23 @@ func ThreadsUpdate(c *gin.Context) {
 
     // Get data off request body
     var body struct {
-        title string
-        content string
+        Title string
+        Content string 
     }
-    c.Bind(&body)
+
+    c.ShouldBindJSON(&body)
 
     // Find thread 
     var thread models.Thread
     initialisers.DB.First(&thread, id)
 
     // Update thread
-    initialisers.DB.Model(&thread).Updates(models.Thread{
-        Title: body.title,
-        Content: body.content,
+    initialisers.DB.Model(&thread).Updates(map[string]interface{}{
+        "title": body.Title,
+        "content": body.Content,
     })
 
-	threadResponse := models.MapThreadToResponse(thread)
-
-    c.JSON(http.StatusOK, gin.H{"data": threadResponse})
+    c.JSON(http.StatusOK, gin.H{"thread": thread})
 }
 
 func ThreadsDelete(c *gin.Context) {
@@ -116,4 +112,3 @@ func ThreadsDelete(c *gin.Context) {
 
     c.JSON(http.StatusOK, gin.H{"message": "thread deleted"})
 }
-

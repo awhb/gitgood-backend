@@ -9,23 +9,40 @@ import (
 )
 
 func CommentsCreate(c *gin.Context) {
-    // Get data off request body
-    var body struct {
-        Content string
-        UserID uint
-        ThreadID uint
-    }
-    c.Bind(&body)
-
-    // Create a comment
-    comment := models.Comment{Content: body.Content, UserID: body.UserID, ThreadID: body.ThreadID}
-    
-    result := initialisers.DB.Create(&comment)
-
-    if result.Error != nil {
-        c.Status(http.StatusForbidden)
+	// Get the authenticated user
+	user, exists := c.Get("user")
+    if !exists {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
         return
     }
+    authUser := user.(models.User)
+
+    // Get data off request body
+    var body struct {
+        Content  string       `json:"content"`
+		ThreadID uint         `json:"threadID"`
+    }
+    if err := c.BindJSON(&body); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+        return
+    }
+
+    // Create a thread
+    comment := models.Comment{
+        Content:   body.Content,
+        ThreadID: body.ThreadID,
+        UserID:  authUser.ID, // Use the authenticated user's ID
+    }
+
+	result := initialisers.DB.Preload("User").Preload("Thread").Create(&comment)
+
+	// Check for errors
+    if result.Error != nil {
+        c.JSON(http.StatusForbidden, gin.H{"error": result.Error.Error()})
+        return
+    }
+
+	c.JSON(http.StatusOK, gin.H{"comment": comment})
 }
 
 func CommentsUpdate(c *gin.Context) {
@@ -36,20 +53,18 @@ func CommentsUpdate(c *gin.Context) {
     var body struct {
         Content string
     }
-    c.Bind(&body)
+    c.ShouldBindJSON(&body)
 
     // Find the comment
     var comment models.Comment
     initialisers.DB.First(&comment, id)
 
     // Update the comment
-    initialisers.DB.Model(&comment).Updates(models.Comment{
-        Content: body.Content,
+    initialisers.DB.Model(&comment).Updates(map[string]interface{}{
+        "content": body.Content,
     })
 
-	commentResponse := models.MapCommenttoResponse(comment)
-
-    c.JSON(http.StatusOK, gin.H{"data": commentResponse})
+    c.JSON(http.StatusOK, gin.H{"comment": comment})
 }
 
 func CommentsDelete(c *gin.Context) {
@@ -59,5 +74,5 @@ func CommentsDelete(c *gin.Context) {
     // Delete the comment
     initialisers.DB.Delete(&models.Comment{}, id)
 
-    c.Status(http.StatusOK)
+    c.JSON(http.StatusOK, gin.H{"message": "comment deleted"})
 }
