@@ -15,9 +15,9 @@ import (
 
 func RequireAuth(c *gin.Context) {
 	// get authorization header
-	tokenString, err := c.Cookie("Authorization")
+	tokenString := c.GetHeader("Authorization")
 
-	if err != nil || tokenString == "" {
+	if tokenString == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "No token provided"})
 		c.Abort()
 		return
@@ -41,7 +41,9 @@ func RequireAuth(c *gin.Context) {
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		// Check the expiry
 		if float64(time.Now().Unix()) > claims["expires"].(float64) {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expired"})
+			c.Abort()
+			return
 		}
 
 		// Find the uer with token sub
@@ -49,7 +51,9 @@ func RequireAuth(c *gin.Context) {
 		initialisers.DB.First(&user, claims["subject"])
 
 		if user.ID == 0 {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+			c.Abort()
+			return
 		}
 
 		// Attach to request
