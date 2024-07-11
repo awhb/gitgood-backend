@@ -43,7 +43,7 @@ func Register(c *gin.Context) {
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Failed to create user",
+			"error": "Failed to create user",
 		})
 		return
 	}
