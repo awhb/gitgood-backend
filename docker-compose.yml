@@ -7,7 +7,7 @@ services:
     depends_on:
       - db
     networks:
-      - gitgood-default
+      - default
     ports:
       - "8080:8080"
 
@@ -21,7 +21,7 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - gitgood-default
+      - default
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -29,5 +29,5 @@ volumes:
   postgres_data:
 
 networks:
-  gitgood-default:
+  default:
     driver: bridge
