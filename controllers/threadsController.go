@@ -36,11 +36,11 @@ func ThreadsCreate(c *gin.Context) {
 		Tags:    body.Tags,
     }
 
-	result := initialisers.DB.Preload("User").Preload("Comments.User").Create(&thread)
+	result := initialisers.DB.Create(&thread)
 
 	// Check for errors
     if result.Error != nil {
-        c.Status(http.StatusForbidden)
+        c.JSON(http.StatusForbidden, gin.H{"error": result.Error.Error()})
         return
     }
 
@@ -52,7 +52,7 @@ func ThreadsCreate(c *gin.Context) {
 func ThreadsIndex(c *gin.Context) {
     var threads []models.Thread
 
-    initialisers.DB.Preload("User").Preload("Comments").Find(&threads)
+    initialisers.DB.Preload("Comments").Find(&threads)
 
     c.JSON(http.StatusOK, gin.H{"threads": threads})
 }
@@ -63,7 +63,7 @@ func ThreadsShow(c *gin.Context) {
     id := c.Param("id")
 
 	// find thread
-    initialisers.DB.Preload("User").Preload("Comments.User").First(&thread, id)
+    initialisers.DB.Preload("Comments").First(&thread, id)
 
     if thread.ID == 0 {
         c.JSON(http.StatusNotFound, gin.H{"error": "Thread not found"})
@@ -73,7 +73,7 @@ func ThreadsShow(c *gin.Context) {
 	// load and return comments with thread
 	var comments []models.Comment
 		
-	initialisers.DB.Preload("User").Preload("Thread").Find(&comments, "thread_id = ?", c.Param("id"))
+	initialisers.DB.Find(&comments, "thread_id = ?", c.Param("id"))
 
     c.JSON(http.StatusOK, gin.H{"thread": thread, "comments": comments})
 }
@@ -110,7 +110,7 @@ func ThreadsDelete(c *gin.Context) {
     id := c.Param("id")
 
     // Delete the thread
-    initialisers.DB.Delete(&models.Thread{}, id)
+    initialisers.DB.Preload("Comments").Delete(&models.Thread{}, id)
 
     c.JSON(http.StatusOK, gin.H{"message": "Thread deleted successfully!"})
 }
