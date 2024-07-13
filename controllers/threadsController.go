@@ -18,12 +18,8 @@ func ThreadsCreate(c *gin.Context) {
     authUser := user.(models.User)
 
     // Get data off request body
-    var body struct {
-        Title   string   `json:"title"`
-        Content string   `json:"content"`
-        Tags    []string `json:"tags"`
-    }
-    if err := c.BindJSON(&body); err != nil {
+    var body models.Thread
+    if c.ShouldBindJSON(&body) != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
         return
     }
@@ -77,25 +73,19 @@ func ThreadsUpdate(c *gin.Context) {
     // Get the id off the url
     id := c.Param("id")
 
-    // Get data off request body
-    var body struct {
-        Title string
-        Content string
-		Tags []string
-    }
+	var body models.Thread
 
-    c.ShouldBindJSON(&body)
+    if c.ShouldBindJSON(&body) != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+        return
+    }
 
     // Find thread 
     var thread models.Thread
     initialisers.DB.First(&thread, id)
 
     // Update thread
-    initialisers.DB.Model(&thread).Updates(map[string]interface{}{
-        "title": body.Title,
-        "content": body.Content,
-		"tags": body.Tags,
-    })
+    initialisers.DB.Model(&thread).Updates(body)
 
     c.JSON(http.StatusOK, gin.H{"thread": thread})
 }
