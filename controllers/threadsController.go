@@ -12,7 +12,7 @@ func ThreadsCreate(c *gin.Context) {
 	// Get the authenticated user
 	user, exists := c.Get("user")
     if !exists {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Current user does not exist"})
         return
     }
     authUser := user.(models.User)
@@ -32,6 +32,7 @@ func ThreadsCreate(c *gin.Context) {
     thread := models.Thread{
         Title:   body.Title,
         Content: body.Content,
+		User:    authUser,
         UserID:  authUser.ID, // Use the authenticated user's ID
 		Tags:    body.Tags,
     }
@@ -52,7 +53,7 @@ func ThreadsCreate(c *gin.Context) {
 func ThreadsIndex(c *gin.Context) {
     var threads []models.Thread
 
-    initialisers.DB.Preload("Comments").Find(&threads)
+    initialisers.DB.Preload("User").Preload("Comments").Find(&threads)
 
     c.JSON(http.StatusOK, gin.H{"threads": threads})
 }
@@ -63,19 +64,14 @@ func ThreadsShow(c *gin.Context) {
     id := c.Param("id")
 
 	// find thread
-    initialisers.DB.Preload("Comments").First(&thread, id)
+    initialisers.DB.Preload("User").Preload("Comments").First(&thread, id)
 
     if thread.ID == 0 {
         c.JSON(http.StatusNotFound, gin.H{"error": "Thread not found"})
         return
     }
 
-	// load and return comments with thread
-	var comments []models.Comment
-		
-	initialisers.DB.Find(&comments, "thread_id = ?", c.Param("id"))
-
-    c.JSON(http.StatusOK, gin.H{"thread": thread, "comments": comments})
+    c.JSON(http.StatusOK, gin.H{"thread": thread})
 }
 
 func ThreadsUpdate(c *gin.Context) {
@@ -110,7 +106,7 @@ func ThreadsDelete(c *gin.Context) {
     id := c.Param("id")
 
     // Delete the thread
-    initialisers.DB.Preload("Comments").Delete(&models.Thread{}, id)
+    initialisers.DB.Preload("User").Preload("Comments").Delete(&models.Thread{}, id)
 
     c.JSON(http.StatusOK, gin.H{"message": "Thread deleted successfully!"})
 }
