@@ -57,7 +57,7 @@ func CommentsUpdate(c *gin.Context) {
 
     // Find the comment
     var comment models.Comment
-    initialisers.DB.First(&comment, id)
+    initialisers.DB.Preload("User").First(&comment, id)
 
     // Update the comment
     initialisers.DB.Model(&comment).Updates(map[string]interface{}{
@@ -72,7 +72,7 @@ func CommentsDelete(c *gin.Context) {
     id := c.Param("id")
 
     // Delete the comment
-    initialisers.DB.Delete(&models.Comment{}, id)
+    initialisers.DB.Preload("User").Delete(&models.Comment{}, id)
 
     c.JSON(http.StatusOK, gin.H{"message": "comment deleted"})
 }
