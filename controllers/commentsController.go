@@ -18,14 +18,12 @@ func CommentsCreate(c *gin.Context) {
     authUser := user.(models.User)
 
     // Get data off request body
-    var body struct {
-        Content  string       `json:"content"`
-		ThreadID uint         `json:"threadID"`
-    }
-    if err := c.BindJSON(&body); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
-        return
-    }
+    var body models.Comment
+	
+	if c.ShouldBindJSON(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
 
     // Create a thread
     comment := models.Comment{
@@ -50,19 +48,18 @@ func CommentsUpdate(c *gin.Context) {
     id := c.Param("id")
 
     // Get data off request body
-    var body struct {
-        Content string
-    }
-    c.ShouldBindJSON(&body)
+    var body models.Comment
+	if c.ShouldBindJSON(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
 
     // Find the comment
     var comment models.Comment
     initialisers.DB.Preload("User").First(&comment, id)
 
     // Update the comment
-    initialisers.DB.Model(&comment).Updates(map[string]interface{}{
-        "content": body.Content,
-    })
+    initialisers.DB.Model(&comment).Updates(body)
 
     c.JSON(http.StatusOK, gin.H{"comment": comment})
 }
