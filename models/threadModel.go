@@ -9,8 +9,8 @@ type Thread struct {
     gorm.Model
     Title   string	`gorm:"unique;not null" json:"title"`
     Content string	`gorm:"type:text;not null" json:"content"`
-	UserID   uint       
+	UserID   uint   `json:"user_id"`
     Tags      pq.StringArray   `gorm:"type:text[]" json:"tags"`
-    Comments  []Comment   `gorm: "foreignKey:ThreadID, constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Upvotes int `gorm:"default:0"`
+    Comments  []Comment   `gorm: "foreignKey:ThreadID, constraint:OnUpdate:CASCADE,OnDelete:CASCADE", json:"comments"`
+	Upvotes int `gorm:"default:0", json:"upvotes"`
 }

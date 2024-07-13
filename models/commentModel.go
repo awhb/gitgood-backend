@@ -7,7 +7,7 @@ import (
 type Comment struct {
     gorm.Model
     Content  string `gorm:"type:text;not null" json:"content"`
-	UserID   uint  
-	ThreadID uint  
-	Upvotes int `gorm:"default:0"`
+	UserID   uint  `json:"user_id"`
+	ThreadID uint  `json:"thread_id"`
+	Upvotes int `gorm:"default:0" json:"upvotes"`
 }
