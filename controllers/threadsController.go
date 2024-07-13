@@ -48,7 +48,7 @@ func ThreadsCreate(c *gin.Context) {
 func ThreadsIndex(c *gin.Context) {
     var threads []models.Thread
 
-    initialisers.DB.Preload("User").Preload("Comments").Find(&threads)
+    initialisers.DB.Preload("User").Preload("Comments.User").Find(&threads)
 
     c.JSON(http.StatusOK, gin.H{"threads": threads})
 }
@@ -59,7 +59,7 @@ func ThreadsShow(c *gin.Context) {
     id := c.Param("id")
 
 	// find thread
-    initialisers.DB.Preload("User").Preload("Comments").First(&thread, id)
+    initialisers.DB.Preload("User").Preload("Comments.User").First(&thread, id)
 
     if thread.ID == 0 {
         c.JSON(http.StatusNotFound, gin.H{"error": "Thread not found"})
