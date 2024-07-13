@@ -34,7 +34,7 @@ func CommentsCreate(c *gin.Context) {
         UserID:  authUser.ID, // Use the authenticated user's ID
     }
 
-	result := initialisers.DB.Preload("User").Preload("Thread").Create(&comment)
+	result := initialisers.DB.Create(&comment)
 
 	// Check for errors
     if result.Error != nil {
