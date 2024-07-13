@@ -15,14 +15,16 @@ import (
 
 func RequireAuth(c *gin.Context) {
 	// get authorization header
-	tokenString, err := c.Cookie("Authorization")
+	tokenString := c.GetHeader("Authorization")
 
-	if err != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+	if tokenString == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No token provided"})
+		c.Abort()
+		return
 	}
 
 	// Decode/validate cookie
-	token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -30,10 +32,18 @@ func RequireAuth(c *gin.Context) {
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.Abort()
+		return
+	}
+
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		// Check the expiry
 		if float64(time.Now().Unix()) > claims["expires"].(float64) {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expired"})
+			c.Abort()
+			return
 		}
 
 		// Find the uer with token sub
@@ -41,7 +51,9 @@ func RequireAuth(c *gin.Context) {
 		initialisers.DB.First(&user, claims["subject"])
 
 		if user.ID == 0 {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+			c.Abort()
+			return
 		}
 
 		// Attach to request

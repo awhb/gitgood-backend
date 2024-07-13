@@ -43,7 +43,7 @@ func Register(c *gin.Context) {
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Failed to create user",
+			"error": "Failed to create user",
 		})
 		return
 	}
@@ -111,7 +111,6 @@ func Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"token": tokenString,
-		"user": user,
 	})
 }
 
@@ -119,8 +118,6 @@ func Validate(c *gin.Context) {
 	user, _ := c.Get("user")
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "You are logged in!",
 		"user":    user,
 	})
 }
-
