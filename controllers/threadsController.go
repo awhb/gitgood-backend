@@ -32,7 +32,6 @@ func ThreadsCreate(c *gin.Context) {
     thread := models.Thread{
         Title:   body.Title,
         Content: body.Content,
-		User:    authUser,
         UserID:  authUser.ID, // Use the authenticated user's ID
 		Tags:    body.Tags,
     }
