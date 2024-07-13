@@ -11,6 +11,6 @@ type Thread struct {
     Content string	`gorm:"type:text;not null" json:"content"`
 	UserID   uint   `json:"user_id"`
     Tags      pq.StringArray   `gorm:"type:text[]" json:"tags"`
-    Comments  []Comment   `gorm: "foreignKey:ThreadID, constraint:OnUpdate:CASCADE,OnDelete:CASCADE", json:"comments"`
-	Upvotes int `gorm:"default:0", json:"upvotes"`
+    Comments  []Comment   `gorm:"foreignKey:ThreadID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"comments"`
+	Upvotes int `gorm:"default:0" json:"upvotes"`
 }
